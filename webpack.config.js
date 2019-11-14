@@ -4,8 +4,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, '/'),
-    filename: 'bundle.js'
+    path: path.resolve(__dirname, "build"),
+    filename: 'bundle.js',
+    publicPath: "/projections/"
   },
   plugins: [
     new HtmlWebpackPlugin({

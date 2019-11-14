@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "gh-pages-deploy": "^0.5.1",
     "three": "^0.110.0"
   },
   "devDependencies": {
