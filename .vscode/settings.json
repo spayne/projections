@@ -1,0 +1,7 @@
+// Workspace settings
+{
+    // The following will hide files ending in ~
+    "files.exclude": {
+        "**/*~": true
+    }
+}
