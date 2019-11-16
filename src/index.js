@@ -1,6 +1,7 @@
 var THREE=require('three');
 
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'
+import { BufferGeometry } from 'three';
 
 
 var sceneGL = new THREE.Scene();
@@ -46,7 +47,7 @@ sceneGL.add( gridHelper );
 gridHelper.rotateX(Math.PI / 2);
 
 
-// CSS Objects
+// Add axis labels as CSS3DObjects into sceneCSS
 for (var i = 0; i < 8; i++) {
 
     var yoffset = -0.2;
@@ -69,6 +70,28 @@ for (var i = 0; i < 8; i++) {
     object.scale.y = 0.1;
     sceneCSS.add(object);
 }
+
+var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+var size = 1;
+var vertices = [
+    -1, 0, 0,	0, 1, 0,
+    -1, 0, 0,	1, 0, 0,
+    -1, 0, 0,	0, -1, 0
+];
+
+var colors = [
+    1, 0, 0,	1, 0.6, 0,
+    0, 1, 0,	0.6, 1, 0,
+    0, 0, 1,	0, 0.6, 1
+];
+
+var geometry=new BufferGeometry();
+geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+var line = new THREE.Line( geometry, material );
+sceneGL.add(line);
+
 
 
 
