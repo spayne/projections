@@ -28,10 +28,6 @@ container.appendChild( rendererGL.domElement );
 container.appendChild( rendererCSS.domElement );
 
 
-var geometry = new THREE.RingBufferGeometry( 0.9, 1, 62 );
-var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-var cube = new THREE.Mesh( geometry, material );
-sceneGL.add( cube );
 
 
 var grid_size = 4;
@@ -45,6 +41,11 @@ var gridHelper = new THREE.GridHelper(
 
 sceneGL.add( gridHelper );
 gridHelper.rotateX(Math.PI / 2);
+
+var geometry = new THREE.RingBufferGeometry( 0.9, 1.1, 62 );
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var ring = new THREE.Mesh( geometry, material );
+sceneGL.add( ring );
 
 
 // Add axis labels as CSS3DObjects into sceneCSS
@@ -73,22 +74,18 @@ for (var i = 0; i < 8; i++) {
 
 var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
 
-var size = 1;
-var vertices = [
-    -1, 0, 0,	0, 1, 0,
-    -1, 0, 0,	1, 0, 0,
-    -1, 0, 0,	0, -1, 0
-];
-
-var colors = [
-    1, 0, 0,	1, 0.6, 0,
-    0, 1, 0,	0.6, 1, 0,
-    0, 0, 1,	0, 0.6, 1
-];
+// d_theta: if theta goes from 0-2pi in 64 steps, dtheta = 2pi/64
+var num_steps=62;
+var d_theta=(2*Math.PI)/num_steps;
+var vertices = [];
+for (var i = 0; i < num_steps; i++) {
+    var x=Math.cos(d_theta*i);
+    var y=Math.sin(d_theta*i);
+    vertices.push(-1,0,0,x,y,0);
+}
 
 var geometry=new BufferGeometry();
 geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 var line = new THREE.Line( geometry, material );
 sceneGL.add(line);
 
