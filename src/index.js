@@ -42,10 +42,74 @@ var gridHelper = new THREE.GridHelper(
 sceneGL.add( gridHelper );
 gridHelper.rotateX(Math.PI / 2);
 
-var geometry = new THREE.RingBufferGeometry( 0.9, 1.1, 62 );
-var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-var ring = new THREE.Mesh( geometry, material );
-sceneGL.add( ring );
+var ring_segments = 62*4;
+var ring_geometry = new THREE.RingGeometry( 0.9, 1.1, ring_segments );
+var ring_material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var ring_mesh = new THREE.Mesh( ring_geometry, ring_material );
+sceneGL.add( ring_mesh );
+
+const ring_vertex_shader = `
+			attribute float size;
+			attribute vec3 customColor;
+			varying vec3 vColor;
+			void main() {
+				vColor = customColor;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_PointSize = size * ( 300.0 / -mvPosition.z );
+				gl_Position = projectionMatrix * mvPosition;
+            }`;
+
+const ring_fragment_shader = `
+			uniform vec3 color;
+			uniform sampler2D pointTexture;
+			varying vec3 vColor;
+			void main() {
+				gl_FragColor = vec4( color * vColor, 1.0 );
+				gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+				if ( gl_FragColor.a < ALPHATEST ) discard;
+			}
+`;
+
+
+//
+// build ring_points: points on ring using a custom shader
+// with programatic/attributes for customColor and size
+// 
+var PARTICLE_SIZE = 0.5;
+var vertices =  ring_geometry.vertices;
+console.log("vertices.length" + vertices.length);
+var positions = new Float32Array( vertices.length * 3 );
+var colors = new Float32Array( vertices.length * 3 );
+var sizes = new Float32Array( vertices.length );
+var vertex;
+var color = new THREE.Color();
+for ( var i = 0, l = vertices.length; i < l; i ++ ) {
+    vertex = vertices[ i ];
+    vertex.toArray( positions, i * 3 );
+    color.setHSL( 0.01 + 0.1 * ( i / l ), 1.0, 0.5 );
+    color.toArray( colors, i * 3 );
+    sizes[ i ] = PARTICLE_SIZE * 0.5;
+}
+
+
+var ring_points_geometry = new THREE.BufferGeometry();
+
+ring_points_geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+ring_points_geometry.setAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+ring_points_geometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+            
+var ring_points_material = new THREE.ShaderMaterial( {
+    uniforms: {
+        color: { value: new THREE.Color( 0xffffff ) },
+        pointTexture: { value: new THREE.TextureLoader().load( "three/examples/textures/sprites/disc.png" ) }
+    },
+    vertexShader: ring_vertex_shader,
+    fragmentShader: ring_fragment_shader,
+    alphaTest: 0.9
+} );
+
+var ring_points = new THREE.Points( ring_points_geometry, ring_points_material );
+sceneGL.add( ring_points );
 
 
 // Add axis labels as CSS3DObjects into sceneCSS
@@ -72,10 +136,12 @@ for (var i = 0; i < 8; i++) {
     sceneCSS.add(object);
 }
 
+//
+// draw lines from -1,0,0 to points on the ring
+//
 var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
-
 // d_theta: if theta goes from 0-2pi in 64 steps, dtheta = 2pi/64
-var num_steps=62;
+var num_steps=24;
 var d_theta=(2*Math.PI)/num_steps;
 var vertices = [];
 for (var i = 0; i < num_steps; i++) {
@@ -83,7 +149,6 @@ for (var i = 0; i < num_steps; i++) {
     var y=Math.sin(d_theta*i);
     vertices.push(-1,0,0,x,y,0);
 }
-
 var geometry=new BufferGeometry();
 geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 var line = new THREE.Line( geometry, material );
