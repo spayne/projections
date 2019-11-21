@@ -42,8 +42,8 @@ var gridHelper = new THREE.GridHelper(
 sceneGL.add( gridHelper );
 gridHelper.rotateX(Math.PI / 2);
 
-var ring_segments = 62*4;
-var ring_geometry = new THREE.RingGeometry( 0.9, 1.1, ring_segments );
+var ring_segments = 62;
+var ring_geometry = new THREE.RingGeometry( 0.9, 1.1, ring_segments, 1 );
 var ring_material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var ring_mesh = new THREE.Mesh( ring_geometry, ring_material );
 sceneGL.add( ring_mesh );
