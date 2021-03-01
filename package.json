@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "gh-pages-deploy": "^0.5.1",
-    "three": "^0.110.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "gh-pages": "^2.1.1",
